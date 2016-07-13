@@ -40,7 +40,7 @@ public class SeatHold {
         if (o == null || getClass() != o.getClass()) return false;
 
         SeatHold seatHold = (SeatHold) o;
-
+        
         return id.equals(seatHold.id);
     }
 
