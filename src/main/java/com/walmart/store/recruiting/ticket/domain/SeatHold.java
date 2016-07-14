@@ -8,16 +8,27 @@ public class SeatHold {
 
     private String id;
     private int numSeats;
+    private int seatId;
+    
 
-    /**
+    public int getSeatId() {
+		return seatId;
+	}
+
+	public void setSeatId(int seatId) {
+		this.seatId = seatId;
+	}
+
+	/**
      * Constructor.
      *
      * @param id the unique hold identifier
      * @param numSeats the number of seats that were held.
      */
-    public SeatHold(String id, int numSeats) {
+    public SeatHold(String id, int numSeats, int seatId) {
         this.id = id;
         this.numSeats = numSeats;
+        this.seatId=seatId;
     }
 
     /**
