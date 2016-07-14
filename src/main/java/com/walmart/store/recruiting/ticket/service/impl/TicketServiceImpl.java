@@ -18,7 +18,7 @@ public class TicketServiceImpl implements TicketService  {
     private int seatsAvailable;
     private int seatsReserved;
     private int nextSeatAvailable;
-    private final int TIME_OUT=2000;
+    private final int TIME_OUT=4000;
     
 
     private Map<String, SeatHold> seatHoldMap = new ConcurrentHashMap<>();
@@ -45,18 +45,19 @@ public class TicketServiceImpl implements TicketService  {
 
     @Override
     public synchronized Optional<SeatHold> findAndHoldSeats(int numSeats) {
-    	
         Optional<SeatHold> optionalSeatHold = Optional.empty();
-        
+        System.out.println("seatsAvailable " + seatsAvailable);
         if (seatsAvailable >= numSeats) {
             String holdId = generateId();
             nextSeatAvailable+=numSeats;
+            System.out.println("nextSeatAvailable " + nextSeatAvailable);
             SeatHold seatHold = new SeatHold(holdId, numSeats,nextSeatAvailable );
             optionalSeatHold = Optional.of(seatHold);
             seatHoldMap.put(holdId, seatHold);
+            System.out.println("seatHoldMap " + seatHoldMap.size());
             seatsAvailable -= numSeats;
             HoldTimeout holdTimeout=new HoldTimeout(holdId);
-            holdTimeout.run();
+            holdTimeout.start();
         }
 
         return optionalSeatHold;
@@ -64,23 +65,31 @@ public class TicketServiceImpl implements TicketService  {
 
    
     
-    @Override
-    public synchronized Optional<String> reserveSeats(String seatHoldId) {
+    public int getSeatsAvailable() {
+		return seatsAvailable;
+	}
+
+	public int getSeatsReserved() {
+		return seatsReserved;
+	}
+
+	@Override
+    public Optional<String> reserveSeats(String seatHoldId) {
         Optional<String> optionalReservation = Optional.empty();
         SeatHold seatHold = seatHoldMap.get(seatHoldId);
         
-  	  if (seatHoldMap.get(seatHoldId)==null){
-          seatsReserved += seatHold.getNumSeats();
-          optionalReservation =  Optional.of(seatHold.getId());
-          ReserveSeat reserveSeat = new ReserveSeat(seatHold);
-          //seatHoldMap.put(seatHoldId, seatHold); 
-          reserveSeatMap.put(seatHoldId, reserveSeat); 
-          seatHoldMap.remove(seatHoldId);
-  	  }
-  	  else {
-  		  System.out.println("Error in reserveSeats ...");
-  	  }
-		
+	    if (seatHold !=null){
+	          seatsReserved += seatHold.getNumSeats();
+	          optionalReservation =  Optional.of(seatHold.getId());
+	          ReserveSeat reserveSeat = new ReserveSeat(seatHold);
+	          //seatHoldMap.put(seatHoldId, seatHold); 
+	          reserveSeatMap.put(seatHoldId, reserveSeat); 
+	          seatHoldMap.remove(seatHoldId);
+	      }
+		  else {
+			System.out.println("Error in reserveSeats ...");
+		}
+      
         return optionalReservation;
     }
     
@@ -90,7 +99,7 @@ public class TicketServiceImpl implements TicketService  {
     }
 
     
-    class HoldTimeout implements Runnable{
+    class HoldTimeout extends Thread{
     	private String holdId;
     	
     	public HoldTimeout (String holdId){
@@ -106,6 +115,8 @@ public class TicketServiceImpl implements TicketService  {
 			}
 			
 			if (seatHoldMap.containsKey(holdId)){
+				System.out.println("thread remove .... " + seatsAvailable);
+				
 				seatsAvailable+= seatHoldMap.get(holdId).getNumSeats();
 				nextSeatAvailable-=seatHoldMap.get(holdId).getNumSeats();
 				seatHoldMap.remove(holdId);

@@ -32,6 +32,8 @@ public class TicketServiceImplTest {
         assertTrue(hold.isPresent());
         assertNotNull(hold.get().getId());
         assertEquals(1, hold.get().getNumSeats());
+        System.out.println(ticketService.numSeatsAvailable());
+        
         assertEquals(9, ticketService.numSeatsAvailable());
 
         hold = ticketService.findAndHoldSeats(5);
@@ -80,5 +82,6 @@ public class TicketServiceImplTest {
         Optional<SeatHold> hold = ticketService.findAndHoldSeats(1);
         assertTrue(!hold.isPresent());
     }
+    
 
 }
