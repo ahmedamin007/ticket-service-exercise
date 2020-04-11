@@ -61,14 +61,4 @@ Your assignment is to improve the implementation by adding the following feature
 * We understand that tradeoffs must be made to complete the exercise within the alloted time window. Do your best to document any simplifying assumptions and design considerations as you work through the problem.
 
 
-//////////////////////////////////////////////
-
-
-
-=============
-
-
-
- 
- Note I did not test code becuase i did't have time 
   
